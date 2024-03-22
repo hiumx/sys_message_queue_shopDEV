@@ -19,14 +19,27 @@ const consumerService = {
 
             const notificationQueue = 'notificationQueueProcess';
 
-            const timeExpire = 5000;
-            setTimeout(async () => {
-                await channel.consume(notificationQueue, msg => {
+            // const timeExpire = 5000;
+            // setTimeout(async () => {
+            //     await channel.consume(notificationQueue, msg => {
+            //         console.log('Message received by normal process: ', msg.content.toString());
+            //     }, {
+            //         noAck: true
+            //     });
+            // }, timeExpire);
+
+            await channel.consume(notificationQueue, msg => {
+                try {
+                    const numberRandom = Math.random();
+                    console.log({ numberRandom });
+                    if(numberRandom < 0.8) {
+                        throw new Error('Error occur when send notification => HOT FIX');
+                    } 
                     console.log('Message received by normal process: ', msg.content.toString());
-                }, {
-                    noAck: true
-                });
-            }, timeExpire);
+                } catch (error) {
+                    channel.nack(msg, false, false);
+                }
+            })
 
         } catch (error) {
             console.error(error);
